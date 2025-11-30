@@ -24,6 +24,7 @@ cargo run -p day01
 
 Add this to launch.json
 
+```json
 {
     "name": "Debug executable 'day01'",
     "type": "lldb",
