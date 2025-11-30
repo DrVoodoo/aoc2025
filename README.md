@@ -6,19 +6,27 @@ follow instructions here
 https://rustup.rs/
 
 then run these 2 commands
+```powershell
 rustup toolchain install stable-x86_64-pc-windows-gnu
+```
+```powershell
 rustup default stable-x86_64-pc-windows-gnu
+```
 
 in vscode install these extensions
 "CodeLLDB" "Even Better TOML"
 ## Add a new day
 
+```powershell
 cargo new --vcs none day01
+```
 then add it to the root Cargo.toml file in the members array like '"day01",'
 
 ## Run a day
 
+```powershell
 cargo run -p day01
+```
 
 ## Debug
 
@@ -38,6 +46,7 @@ Add this to launch.json
     },
     "args": []
 },
+```
 
 ## Fetch instructions for a day to a txt file
 
