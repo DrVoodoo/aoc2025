@@ -1,0 +1,13 @@
+[package]
+name = "aoc_utils"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[workspace]
+members = [
+    "aoc_utils",
+    "day01",
+    "day02",
+]
