@@ -6,10 +6,10 @@ follow instructions here
 https://rustup.rs/
 
 then run these 2 commands
-```powershell
+```rust
 rustup toolchain install stable-x86_64-pc-windows-gnu
 ```
-```powershell
+```rust
 rustup default stable-x86_64-pc-windows-gnu
 ```
 
@@ -17,14 +17,14 @@ in vscode install these extensions
 "CodeLLDB" "Even Better TOML"
 ## Add a new day
 
-```powershell
+```rust
 cargo new --vcs none day01
 ```
 then add it to the root Cargo.toml file in the members array like '"day01",'
 
 ## Run a day
 
-```powershell
+```rust
 cargo run -p day01
 ```
 
