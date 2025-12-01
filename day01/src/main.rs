@@ -7,15 +7,27 @@ fn main() -> io::Result<()> {
     let mut dial = 50;
 
     for Code { turn, number} in &values {
+        let mut counter: i32 = *number;
         if turn == "L" {
-            dial -= number;
+            while counter > 0 {
+                dial -= 1;
+                if dial == 0 {
+                    final_code += 1;
+                }
+                if dial < 0 {
+                    dial = 99;
+                }
+                counter -= 1;                
+            }
         } else if turn == "R" {
-            dial += number;
-        }
-        dial = ((dial % 100) + 100) % 100;
-
-        if dial == 0 {
-            final_code += 1;
+            while counter > 0 {
+                dial += 1;
+                if dial == 100 {
+                    final_code += 1;
+                    dial = 0;
+                }
+                counter -= 1;                
+            }
         }
     }
 
