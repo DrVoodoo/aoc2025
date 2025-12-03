@@ -19,12 +19,12 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("Total valid product IDs: {}", total_count);
+    println!("Total sum of invalid product IDs: {}", total_count);
 
     Ok(())
 }
 
-fn parse_file() -> io::Result<Vec<ProdctIdRange>> {
+fn parse_file() -> io::Result<Vec<ProductIdRange>> {
     let file = File::open("day02/input.txt")?;
     let mut reader = BufReader::new(file);
 
@@ -32,19 +32,19 @@ fn parse_file() -> io::Result<Vec<ProdctIdRange>> {
     reader.read_line(&mut data)?;
     let ranges_data: Vec<&str> = data.split(',').collect();
     
-    let mut ranges: Vec<ProdctIdRange> = Vec::new();
+    let mut ranges: Vec<ProductIdRange> = Vec::new();
 
     for range_data in ranges_data {
         let range_values: Vec<&str> = range_data.split('-').collect();
         let first: u64 = range_values[0].trim().parse().unwrap();
         let last: u64 = range_values[1].trim().parse().unwrap();
-        ranges.push(ProdctIdRange { first, last });
+        ranges.push(ProductIdRange { first, last });
     }
 
     Ok(ranges)
 }
 
-struct ProdctIdRange {
+struct ProductIdRange {
     first: u64,
     last: u64,
 }
