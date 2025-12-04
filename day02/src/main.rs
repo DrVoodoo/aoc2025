@@ -3,17 +3,11 @@ use std::io::{self, BufRead, BufReader};
 
 fn main() -> io::Result<()> {
     let ranges = parse_file()?;
-
+    
     let mut total_count: u64 = 0;
     for range in ranges {
         for i in range.first..=range.last {
-            let s = i.to_string();
-            let mid = s.len() / 2;
-
-            let first_half = &s[..mid];
-            let second_half = &s[mid..];
-
-            if first_half == second_half {
+            if invalid_product_id(i) {
                 total_count += i;
             }
         }
@@ -22,6 +16,28 @@ fn main() -> io::Result<()> {
     println!("Total sum of invalid product IDs: {}", total_count);
 
     Ok(())
+}
+
+fn invalid_product_id(value: u64) -> bool {
+    let s = value.to_string();
+    let len = s.to_string().len();
+    
+    for j in 1..len {
+        if j != len && len % j == 0 {
+            let chunks: Vec<String> = s.chars()
+                .collect::<Vec<_>>()
+                .chunks(j)
+                .map(|c| c.iter().collect())
+                .collect();
+
+            let all_equal = chunks.windows(2).all(|w| w[0] == w[1]);
+            if all_equal {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 fn parse_file() -> io::Result<Vec<ProductIdRange>> {
