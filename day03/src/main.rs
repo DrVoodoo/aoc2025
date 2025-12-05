@@ -3,11 +3,11 @@ use std::io::{self, BufRead, BufReader};
 
 fn main() -> io::Result<()> {
     let values = parse_file()?;
-    let mut total_battery_value = 0;
+    let mut total_battery_value: u64 = 0;
 
     for val in &values {
-        let battery_value = get_battery_value(val.to_string())?;
-        total_battery_value += battery_value.parse::<i32>().unwrap_or(0);
+        let battery_value = get_twelwe_cell_battery(val.to_string())?;
+        total_battery_value += battery_value.parse::<u64>().unwrap_or(0);
     }
 
     println!("Total battery value: {}", total_battery_value);
@@ -15,36 +15,41 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn get_battery_value(val: String) -> io::Result<String> {
-    let excluded = [90, 80, 70, 60, 50, 40, 30, 20, 10];
+fn get_twelwe_cell_battery(val: String) -> io::Result<String> {
+    let mut counter = 0;
+    let mut result = String::new();
+    let mut left_to_choose_from = val;
 
-    for i in (11..=99).rev() {
-        if excluded.contains(&i) {
-            continue;
-        }
-
-        let first_find = (i - (i % 10)) / 10;
-        let second_find = i % 10;
-        let mut first = 0;
-        let mut last = 0;
-        for c in val.chars() {
-            let d = c.to_digit(10).unwrap() as i32;
-            
-            if first == 0 {
-                if d == first_find {
-                    first = d;
-                }
-            } else {
-                if d == second_find {
-                    last = d;
-                }
+    while counter < 12 {
+        for i in (0..=9).rev() {
+            let index = index_of_choosen_battery(i, left_to_choose_from.to_string(), 12 - counter).unwrap();
+        
+            if index != -1 {
+                left_to_choose_from = left_to_choose_from.get(((index+1) as usize)..).unwrap().to_string();
+                counter += 1;
+                result.push_str(&i.to_string());
+                break;
             }
-            if first != 0 && last != 0 {
-                return Ok(format!("{}{}", first, last));
+        }    
+    }
+    
+    Ok(result.to_string())
+}
+
+fn index_of_choosen_battery(number_to_find: i32, val: String, choices_left: i32) -> io::Result<i32> {
+    let choices = val.len() as i32;
+    for i in 0..=choices-1 {
+        let c = val.chars().nth(i as usize).unwrap().to_digit(10).unwrap() as i32;
+        if c == number_to_find {
+            if choices-i >= choices_left {
+                return Ok(i);
+            } else {
+                return Ok(-1);
             }
         }
     }
-    Ok("".to_string())
+
+    Ok(-1)
 }
 
 fn parse_file() -> io::Result<Vec<String>> {
