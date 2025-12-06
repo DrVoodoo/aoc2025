@@ -3,79 +3,81 @@ use std::io::{self, BufRead, BufReader};
 
 fn main() -> io::Result<()> {
     let data = parse_file()?;
-
+    let length = 3753;// temporary hack :) data[0].len();
     let mut total_result: u64 = 0;
 
-    for i in 0..data.operations.len() {
-        let op = data.operations[i];
-        let a = data.first_numbers[i];
-        let b = data.second_numbers[i];
-        let c = data.third_numbers[i];
-        let d = data.fourth_numbers[i];
-
-        let result = match op {
-            '+' => a + b + c + d,
-            '*' => a * b * c * d,
-            _ => {
-                println!("Unknown operation '{}' at index {}", op, i);
-                continue;
+    let mut current_operator = data[4][0];
+    let mut current_total: u64 = 0;
+    for i in (0..(length-1)) {
+        let mut combined: Vec<char> = Vec::new();
+        combined.push(data[0][i]);
+        combined.push(data[1][i]);
+        combined.push(data[2][i]);
+        combined.push(data[3][i]);
+        let operator = data[4][i];
+        
+        if is_new_calculation(combined.clone(), operator) {
+            // dont go over index
+            if length-1 >= i+1 {
+                current_operator = data[4][i+1];
             }
-        };
-
-        total_result += result;
+            total_result += current_total;
+            current_total = 0;
+        } else {
+            let number = combine_numbers(combined);
+            if current_operator == '+' {
+                current_total += number;
+            } else if current_operator == '*' {
+                // first number
+                if current_total == 0 {
+                    current_total = number;
+                } else {
+                    current_total *= number;
+                }
+            }
+        }
     }
 
+    // add the last sum here because we add when we find new operator and the last value will be missed
+    if current_total > 0 {
+        total_result += current_total; 
+    }
     println!("Total result: {}", total_result);
 
     Ok(())
 }
 
-fn parse_file() -> io::Result<MathData> {
+fn combine_numbers(combined: Vec<char>) -> u64 {
+    let only_numbers: String = combined
+        .iter()
+        .filter(|&&c| c != ' ')
+        .map(|&c| c.to_string())
+        .collect();
+
+    let number: u64 = only_numbers.parse().expect("not a valid number");
+    number
+}
+
+fn is_new_calculation(combined: Vec<char>, operator: char) -> bool {
+    if combined.iter().all(|c| *c == ' ') &&
+        operator == ' ' {
+            return true;
+        }
+    
+    false
+}
+
+fn parse_file() -> io::Result<Vec<Vec<char>>> {
     let file = File::open("day06/input.txt")?;
     let mut reader = BufReader::new(file);
     let mut line = String::new();
-    let mut lines: Vec<String> = Vec::new();
+    let mut lines: Vec<Vec<char>> = Vec::new();
 
     while reader.read_line(&mut line)? != 0 {
-        lines.push(line.trim().to_string());
+        lines.push(line.chars().collect());
         line.clear();
     }
 
-    let math_data = MathData {
-        first_numbers: lines[0]
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<u64>().unwrap())
-            .collect::<Vec<u64>>(),
-        second_numbers: lines[1]
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<u64>().unwrap())
-            .collect::<Vec<u64>>(),
-        third_numbers: lines[2]
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<u64>().unwrap())
-            .collect::<Vec<u64>>(),
-        fourth_numbers: lines[3]
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<u64>().unwrap())
-            .collect::<Vec<u64>>(),
-        operations: lines[4]
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<char>().unwrap())
-            .collect::<Vec<char>>(),
-    };
-
-    Ok(math_data)
+    Ok(lines)
 }
 
-struct MathData {
-    first_numbers: Vec<u64>,
-    second_numbers: Vec<u64>,
-    third_numbers: Vec<u64>,
-    fourth_numbers: Vec<u64>,
-    operations: Vec<char>,
-}
