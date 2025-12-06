@@ -3,19 +3,26 @@ use std::io::{self, BufRead, BufReader};
 
 fn main() -> io::Result<()> {
     let mut rolls_of_paper = 0;
-    let grid = parse_file()?;
+    let mut grid = parse_file()?;
 
     let length = grid[0].len() as i32;
     let height = grid.len() as i32;
 
-    for y in 0..height {
-        for x in 0..length {
-            let value = grid[y as usize][x as usize];
-            
-            if value == '@' {
-                let collision_grid = get_collision_grid(&grid, x, y, length, height);
-                if can_forklift_paper_roll(collision_grid) {
-                    rolls_of_paper += 1;
+    let mut has_lifted = true;
+
+    while has_lifted == true {
+        has_lifted = false;
+        for y in 0..height {
+            for x in 0..length {
+                let value = grid[y as usize][x as usize];
+                
+                if value == '@' {
+                    let collision_grid = get_collision_grid(&grid, x, y, length, height);
+                    if can_forklift_paper_roll(collision_grid) {
+                        rolls_of_paper += 1;
+                        grid[y as usize][x as usize] = 'x'; // mark as lifted
+                        has_lifted = true;
+                    }
                 }
             }
         }
