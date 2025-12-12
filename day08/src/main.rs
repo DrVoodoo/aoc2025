@@ -24,13 +24,20 @@ fn main() -> io::Result<()> {
     point_distances.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
 
     let mut circuits: Vec<Circuit> = Vec::new();
-    for point_distance in point_distances.iter().take(number_of_pairs) {
+    let mut last_point_distance: Option<PointDistance> = None; 
+    for point_distance in point_distances.iter() {//.take(number_of_pairs) {
+        // we have only one circuit
+        if circuits.len() == 1 && circuits[0].connections.len() == point_distances.len()-1 {
+            break;
+        }
+
         if connected_in_same_circuit(point_distance, &circuits) {
             continue;
         }
 
         if no_connections(point_distance, &circuits) {
             circuits.push(Circuit { connections: vec![point_distance.clone()] });
+            last_point_distance = Some(*point_distance);
             continue;
         }
 
@@ -41,6 +48,7 @@ fn main() -> io::Result<()> {
                 if circuit.connections.iter().any(|c| is_same_point(point_distance.point1, c.point1)) ||
                     circuit.connections.iter().any(|c| is_same_point(point_distance.point1, c.point2)) {
                         circuit.connections.push(point_distance.clone());
+                        last_point_distance = Some(*point_distance);
                     }
             }
             continue;
@@ -50,6 +58,7 @@ fn main() -> io::Result<()> {
                 if circuit.connections.iter().any(|c| is_same_point(point_distance.point2, c.point1)) ||
                     circuit.connections.iter().any(|c| is_same_point(point_distance.point2, c.point2)) {
                         circuit.connections.push(point_distance.clone());
+                        last_point_distance = Some(*point_distance);
                     }
             }
             continue;
@@ -71,14 +80,19 @@ fn main() -> io::Result<()> {
         new_connections.push(*point_distance);
         new_circuits.push(Circuit { connections: new_connections });
         circuits = new_circuits;
+        last_point_distance = Some(*point_distance);
     }
 
-    circuits.sort_by(|a, b| b.connections.len().cmp(&a.connections.len()));
+    //circuits.sort_by(|a, b| b.connections.len().cmp(&a.connections.len()));
 
-    let mut answer = 1;
-    for i in 0..number_of_largest_circuits {
-        answer *= circuits[i].connections.len()+1;
+    let mut answer = 0;
+    // for i in 0..number_of_largest_circuits {
+    //     answer *= circuits[i].connections.len()+1;
+    // }
+    if let Some(v) = last_point_distance {
+        answer = v.point1.x * v.point2.x;
     }
+
     println!("Answer {}", answer);
 
     Ok(())
